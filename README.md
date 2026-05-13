@@ -22,10 +22,11 @@ uvicorn main:app --reload
 http://localhost:3000/docs
 
 ## Insertar evento
-
+```powershell
 curl -X POST http://localhost:3000/event \
 -H "Content-Type: application/json" \
 -d '{"evento":"sensor","estado":"activo"}'
+```
 
 ## Index
 http://localhost
