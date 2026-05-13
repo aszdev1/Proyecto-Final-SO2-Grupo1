@@ -2,7 +2,7 @@
 
 ## Ambiente de desarrollo
 
-Copiar .env.local -> Renombrar a .env
+Copiar .env.example -> Renombrar a .env
 
 ```powershell
 cd C:\Proyecto-Final-SO2-Grupo1\backend
