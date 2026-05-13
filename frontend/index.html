@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Eventos</title>
+</head>
+<body>
+
+<h1>Eventos</h1>
+
+<button onclick="cargar()">Actualizar</button>
+
+<pre id="data"></pre>
+
+<script>
+
+async function cargar() {
+
+    const res = await fetch('http://localhost:3000/events');
+
+    const data = await res.json();
+
+    document.getElementById('data').innerText =
+        JSON.stringify(data, null, 2);
+}
+
+cargar();
+
+</script>
+
+</body>
+</html>
