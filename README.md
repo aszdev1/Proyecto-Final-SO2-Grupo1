@@ -2,6 +2,9 @@
 
 ## Ambiente de desarrollo
 
+### Version backend python 
+Python 3.13.7
+
 Copiar .env.example -> Renombrar a .env
 
 ```powershell
