@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor de Servicios</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f1f5f9; color: #1e293b; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 20px;
+  }
+  h1 { font-size: 1.8rem; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+  h1 span { font-size: 0.9rem; color: #94a3b8; font-weight: normal; }
+  .grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 1000px; }
+  .card {
+    background: #ffffff; border-radius: 12px; padding: 24px; width: 300px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
+    transition: border-color 0.3s;
+  }
+  .card.online { border-color: #22c55e; }
+  .card.offline { border-color: #ef4444; }
+  .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .status-dot {
+    width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .status-dot.online { background: #16a34a; }
+  .status-dot.offline { background: #dc2626; }
+  .status-dot.unknown { background: #94a3b8; }
+  .card-title { font-size: 1.1rem; font-weight: 600; }
+  .card-body { display: flex; flex-direction: column; gap: 8px; }
+  .stat-row { display: flex; justify-content: space-between; font-size: 0.9rem; }
+  .stat-row .label { color: #64748b; }
+  .stat-row .value { font-weight: 500; }
+  .value.online { color: #16a34a; }
+  .value.offline { color: #dc2626; }
+  .uptime-bar {
+    margin-top: 8px; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;
+  }
+  .uptime-fill {
+    height: 100%; border-radius: 3px; transition: width 1s;
+  }
+  .uptime-fill.good { background: #16a34a; }
+  .uptime-fill.warn { background: #d97706; }
+  .uptime-fill.bad { background: #dc2626; }
+  .timeline {
+    margin-top: 14px; display: flex; gap: 4px; flex-wrap: wrap; align-items: center;
+  }
+  .timeline-label { font-size: 0.75rem; color: #94a3b8; margin-right: 6px; }
+  .tl-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .tl-dot.online { background: #16a34a; }
+  .tl-dot.offline { background: #dc2626; }
+  .footer { margin-top: 30px; font-size: 0.8rem; color: #94a3b8; }
+  .error-msg { font-size: 0.75rem; color: #dc2626; margin-top: 4px; word-break: break-all; }
+  .error-line { color: #f87171; }
+  @media (max-width: 680px) { .card { width: 100%; max-width: 400px; } }
+</style>
+</head>
+<body>
+
+<h1>Monitor de Servicios <span id="lastUpdate"></span></h1>
+<div class="grid" id="cards"></div>
+<div class="footer">Verifica cada 10s · Retención 10 min</div>
+
+<script>
+const SERVICE_ICONS = {
+  backend: "⚙️", frontend: "🌐", mongodb: "🗄️"
+};
+
+async function load() {
+  try {
+    const [statusRes, statsRes] = await Promise.all([
+      fetch("/api/monitor/status"),
+      fetch("/api/monitor/stats")
+    ]);
+    const status = await statusRes.json();
+    const stats = await statsRes.json();
+
+    document.getElementById("lastUpdate").textContent =
+      "· " + new Date().toLocaleTimeString();
+
+    const grid = document.getElementById("cards");
+    grid.innerHTML = "";
+
+    for (const [name, svc] of Object.entries(status)) {
+      const s = stats[name] || {};
+      const last = svc;
+      const st = last ? last.status : "unknown";
+      const card = document.createElement("div");
+      card.className = "card " + st;
+
+      const uptime = s.uptime_pct || 0;
+      let barClass = "bad";
+      if (uptime >= 98) barClass = "good";
+      else if (uptime >= 70) barClass = "warn";
+
+      let lastTime = "—";
+      if (s.last_check) {
+        lastTime = new Date(s.last_check + "Z").toLocaleTimeString();
+      }
+
+      let errorHtml = "";
+      if (last && last.error) {
+        errorHtml = `<div class="error-msg">${last.error}</div>`;
+      }
+
+      // Fetch history for timeline dots
+      let timelineDots = "";
+      try {
+        const histRes = await fetch(`/api/monitor/history?service=${name}&limit=20`);
+        const hist = await histRes.json();
+        timelineDots = hist.slice().reverse().map(h =>
+          `<span class="tl-dot ${h.status}" title="${h.status} · ${new Date(h.fecha + "Z").toLocaleTimeString()}"></span>`
+        ).join("");
+      } catch(e) {}
+
+      card.innerHTML = `
+        <div class="card-header">
+          <span>${SERVICE_ICONS[name] || "🔵"}</span>
+          <span class="status-dot ${st}"></span>
+          <span class="card-title">${s.label || name}</span>
+        </div>
+        <div class="card-body">
+          <div class="stat-row">
+            <span class="label">Estado</span>
+            <span class="value ${st}">${st === "online" ? "Online" : st === "offline" ? "Offline" : "Desconocido"}</span>
+          </div>
+          <div class="stat-row">
+            <span class="label">Respuesta</span>
+            <span class="value">${last ? last.response_time_ms + " ms" : "—"}</span>
+          </div>
+          <div class="stat-row">
+            <span class="label">Uptime (10 min)</span>
+            <span class="value">${uptime}%</span>
+          </div>
+          <div class="stat-row">
+            <span class="label">Último chequeo</span>
+            <span class="value">${lastTime}</span>
+          </div>
+          <div class="uptime-bar">
+            <div class="uptime-fill ${barClass}" style="width:${uptime}%"></div>
+          </div>
+          ${errorHtml}
+          <div class="timeline">
+            <span class="timeline-label">Historial:</span>
+            ${timelineDots || "<span style='color:#94a3b8;font-size:0.75rem'>Sin datos</span>"}
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+  } catch (e) {
+    document.getElementById("lastUpdate").textContent = "· Error al cargar";
+  }
+}
+
+load();
+setInterval(load, 10000);
+</script>
+</body>
+</html>
