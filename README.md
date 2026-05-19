@@ -694,7 +694,7 @@ Servicio que verifica periódicamente el estado de los 3 contenedores (backend, 
 
 ## Funcionamiento
 
-- Cada **30 segundos** hace un ping HTTP a backend y frontend, y un socket check a MongoDB.
+- Cada **15 segundos** hace un ping HTTP a backend y frontend, y un socket check a MongoDB.
 - Guarda el historial de los últimos **10 minutos** en `monitor-servicios/data/monitor.json`.
 - No depende de MongoDB para su almacenamiento (funciona incluso si MongoDB está caído).
 
@@ -727,7 +727,7 @@ GET /api/monitor/stats        → Estadísticas de uptime
 
 # Manual de Pruebas — Detener servicios uno a uno
 
-Para probar que el monitor detecta correctamente las caídas, se pueden detener los servicios de forma individual. El monitor tarda hasta **30 segundos** en reflejar el cambio.
+Para probar que el monitor detecta correctamente las caídas, se pueden detener los servicios de forma individual. El monitor tarda hasta **15 segundos** en reflejar el cambio.
 
 ## Windows (PowerShell)
 
