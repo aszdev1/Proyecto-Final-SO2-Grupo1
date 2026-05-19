@@ -15,7 +15,7 @@
 
 async function cargar() {
 
-    const res = await fetch('http://localhost:3000/events');
+    const res = await fetch(`http://${window.location.hostname}:3000/events`);
 
     const data = await res.json();
 
