@@ -1,204 +1,119 @@
 [
   {
-    "_id": "6a0bdf0c2b8f58f23aad95ef",
+    "_id": "682a00000000000000000001",
     "robot_id": "robot_01",
     "tipo": "movimiento",
     "evento": "adelante",
     "nivel": "info",
-    "datos": {
-      "velocidad": 84
-    },
-    "fecha": "2026-05-19T03:54:52.648000"
+    "datos": { "velocidad": 84 },
+    "timestamp": "18/05/2026 10:30:15 AM"
   },
   {
-    "_id": "6a0bdf022b8f58f23aad95ee",
-    "robot_id": "robot_01",
-    "tipo": "energia",
-    "evento": "consumo",
-    "nivel": "info",
-    "datos": {
-      "consumo_ma": 482
-    },
-    "fecha": "2026-05-19T03:54:42.603000"
-  },
-  {
-    "_id": "6a0bdef82b8f58f23aad95ed",
-    "robot_id": "robot_01",
-    "tipo": "temperatura",
-    "evento": "sobrecalentamiento",
-    "nivel": "critical",
-    "datos": {
-      "temperatura_c": 46
-    },
-    "fecha": "2026-05-19T03:54:32.700000"
-  },
-  {
-    "_id": "6a0bdeee2b8f58f23aad95ec",
-    "robot_id": "robot_01",
-    "tipo": "temperatura",
-    "evento": "lectura",
-    "nivel": "info",
-    "datos": {
-      "temperatura_c": 35
-    },
-    "fecha": "2026-05-19T03:54:22.517000"
-  },
-  {
-    "_id": "6a0bdee42b8f58f23aad95eb",
-    "robot_id": "robot_01",
-    "tipo": "movimiento",
-    "evento": "adelante",
-    "nivel": "info",
-    "datos": {
-      "velocidad": 52
-    },
-    "fecha": "2026-05-19T03:54:12.593000"
-  },
-  {
-    "_id": "6a0bdeda2b8f58f23aad95ea",
-    "robot_id": "robot_01",
-    "tipo": "error",
-    "evento": "motor_fail",
-    "nivel": "critical",
-    "datos": {
-      "codigo": 103
-    },
-    "fecha": "2026-05-19T03:54:02.698000"
-  },
-  {
-    "_id": "6a0bded02b8f58f23aad95e9",
+    "_id": "682a00000000000000000002",
     "robot_id": "robot_01",
     "tipo": "movimiento",
     "evento": "detenido",
     "nivel": "info",
-    "datos": {
-      "velocidad": 0
-    },
-    "fecha": "2026-05-19T03:53:52.509000"
+    "datos": { "velocidad": 0 },
+    "timestamp": "18/05/2026 10:30:45 AM"
   },
   {
-    "_id": "6a0bdec62b8f58f23aad95e8",
+    "_id": "682a00000000000000000003",
     "robot_id": "robot_01",
     "tipo": "movimiento",
     "evento": "giro",
     "nivel": "info",
-    "datos": {
-      "velocidad": 70,
-      "angulo": 60
-    },
-    "fecha": "2026-05-19T03:53:42.591000"
+    "datos": { "velocidad": 70, "angulo": -45 },
+    "timestamp": "18/05/2026 10:31:15 AM"
   },
   {
-    "_id": "6a0bdebc2b8f58f23aad95e7",
+    "_id": "682a00000000000000000004",
     "robot_id": "robot_01",
-    "tipo": "movimiento",
-    "evento": "giro",
-    "nivel": "info",
-    "datos": {
-      "velocidad": 41,
-      "angulo": -63
-    },
-    "fecha": "2026-05-19T03:53:32.693000"
+    "tipo": "sensor",
+    "evento": "obstaculo_detectado",
+    "nivel": "warning",
+    "datos": { "distancia_cm": 15 },
+    "timestamp": "18/05/2026 10:31:45 AM"
   },
   {
-    "_id": "6a0bdeb22b8f58f23aad95e6",
-    "robot_id": "robot_01",
-    "tipo": "temperatura",
-    "evento": "sobrecalentamiento",
-    "nivel": "critical",
-    "datos": {
-      "temperatura_c": 51
-    },
-    "fecha": "2026-05-19T03:53:22.487000"
-  },
-  {
-    "_id": "6a0bdea82b8f58f23aad95e5",
-    "robot_id": "robot_01",
-    "tipo": "error",
-    "evento": "motor_fail",
-    "nivel": "critical",
-    "datos": {
-      "codigo": 105
-    },
-    "fecha": "2026-05-19T03:53:12.567000"
-  },
-  {
-    "_id": "6a0bde9e2b8f58f23aad95e4",
+    "_id": "682a00000000000000000005",
     "robot_id": "robot_01",
     "tipo": "sensor",
     "evento": "ultrasonido",
     "nivel": "info",
-    "datos": {
-      "distancia_cm": 29,
-      "angulo": 315
-    },
-    "fecha": "2026-05-19T03:53:02.656000"
+    "datos": { "distancia_cm": 120, "angulo": 90 },
+    "timestamp": "18/05/2026 10:32:15 AM"
   },
   {
-    "_id": "6a0bde942b8f58f23aad95e3",
-    "robot_id": "robot_01",
-    "tipo": "error",
-    "evento": "motor_fail",
-    "nivel": "critical",
-    "datos": {
-      "codigo": 103
-    },
-    "fecha": "2026-05-19T03:52:52.532000"
-  },
-  {
-    "_id": "6a0bde8a2b8f58f23aad95e2",
+    "_id": "682a00000000000000000006",
     "robot_id": "robot_01",
     "tipo": "temperatura",
     "evento": "lectura",
     "nivel": "info",
-    "datos": {
-      "temperatura_c": 35
-    },
-    "fecha": "2026-05-19T03:52:42.560000"
+    "datos": { "temperatura_c": 32 },
+    "timestamp": "18/05/2026 10:32:45 AM"
   },
   {
-    "_id": "6a0bde802b8f58f23aad95e1",
+    "_id": "682a00000000000000000007",
     "robot_id": "robot_01",
     "tipo": "temperatura",
     "evento": "sobrecalentamiento",
     "nivel": "critical",
-    "datos": {
-      "temperatura_c": 51
-    },
-    "fecha": "2026-05-19T03:52:32.919000"
+    "datos": { "temperatura_c": 52 },
+    "timestamp": "18/05/2026 10:33:15 AM"
   },
   {
-    "_id": "6a0bde6d2b8f58f23aad95e0",
+    "_id": "682a00000000000000000008",
     "robot_id": "robot_01",
-    "tipo": "movimiento",
-    "evento": "detenido",
-    "nivel": "info",
-    "datos": {
-      "velocidad": 0
-    },
-    "fecha": "2026-05-19T03:52:13.849000"
+    "tipo": "energia",
+    "evento": "bateria",
+    "nivel": "warning",
+    "datos": { "bateria_pct": 22 },
+    "timestamp": "18/05/2026 10:33:45 AM"
   },
   {
-    "_id": "6a0bde642b8f58f23aad95df",
+    "_id": "682a00000000000000000009",
+    "robot_id": "robot_01",
+    "tipo": "energia",
+    "evento": "consumo",
+    "nivel": "info",
+    "datos": { "consumo_ma": 350 },
+    "timestamp": "18/05/2026 10:34:15 AM"
+  },
+  {
+    "_id": "682a0000000000000000000a",
+    "robot_id": "robot_01",
+    "tipo": "error",
+    "evento": "motor_fail",
+    "nivel": "critical",
+    "datos": { "codigo": 104 },
+    "timestamp": "18/05/2026 10:34:45 AM"
+  },
+  {
+    "_id": "682a0000000000000000000b",
+    "robot_id": "robot_01",
+    "tipo": "error",
+    "evento": "sensor_fail",
+    "nivel": "warning",
+    "datos": { "codigo": 201, "sensor": "ultrasonido" },
+    "timestamp": "18/05/2026 10:35:15 AM"
+  },
+  {
+    "_id": "682a0000000000000000000c",
     "robot_id": "robot_01",
     "tipo": "sistema",
     "evento": "reinicio",
     "nivel": "warning",
-    "datos": {
-      "accion": "reinicio_completo"
-    },
-    "fecha": "2026-05-19T03:52:04.423000"
+    "datos": { "accion": "reinicio_completo" },
+    "timestamp": "18/05/2026 10:35:45 AM"
   },
   {
-    "_id": "6a040172471e2a3a917403c0",
-    "evento": "sensor",
-    "estado": "activo",
-    "fecha": "2026-05-13T04:43:30.122000"
-  },
-  {
-    "_id": "6a03ff3b2652cf19f344ba89",
-    "sistema": "init",
-    "mensaje": "Colección creada automáticamente",
-    "fecha": "2026-05-13T04:34:03.492000"
+    "_id": "682a0000000000000000000d",
+    "robot_id": "robot_01",
+    "tipo": "otro",
+    "evento": "test",
+    "nivel": "info",
+    "datos": { "mensaje": "prueba_conexion" },
+    "timestamp": "18/05/2026 10:36:15 AM"
   }
 ]

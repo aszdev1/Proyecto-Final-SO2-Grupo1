@@ -1,9 +1,14 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <time.h>
 
-const char* ssid = "Wifi12345";
-const char* password = "wifi**12345";
-const char* server = "http://192.168.1.37:3000";
+const char* ssid = "WIFI_SSI";
+const char* password = "PASSWORD";
+const char* server = "http://IP_DEL_BACKEND:3000";
+
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset = -21600;
+const int   daylightOffset = 3600;
 
 unsigned long lastSend = 0;
 
@@ -18,13 +23,27 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("\nWiFi conectado");
-  Serial.print("IP: ");
-  Serial.println(WiFi.localIP());
+
+  configTime(gmtOffset, daylightOffset, ntpServer);
+  Serial.print("Sincronizando NTP");
+  while (time(nullptr) < 100000) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nHora sincronizada");
+}
+
+String getTimestamp() {
+  time_t now = time(nullptr);
+  struct tm* t = localtime(&now);
+  char buf[30];
+  strftime(buf, sizeof(buf), "%d/%m/%Y %I:%M:%S %p", t);
+  return String(buf);
 }
 
 bool healthCheck() {
   HTTPClient http;
-  http.begin(String(server) + "/");
+  http.begin(String(server) + "/api/v1/eventos");
   http.setTimeout(5000);
   int code = http.GET();
   http.end();
@@ -33,7 +52,7 @@ bool healthCheck() {
 
 void sendEvent(const String& body) {
   HTTPClient http;
-  http.begin(String(server) + "/event");
+  http.begin(String(server) + "/api/v1/eventos");
   http.addHeader("Content-Type", "application/json");
   http.setTimeout(5000);
 
@@ -47,7 +66,8 @@ String j(const char* tipo, const char* evento,
   return String("{\"robot_id\":\"robot_01\",\"tipo\":\"") + tipo
        + "\",\"evento\":\"" + evento
        + "\",\"nivel\":\"" + nivel
-       + "\",\"datos\":" + datos + "}";
+       + "\",\"datos\":" + datos
+       + ",\"timestamp\":\"" + getTimestamp() + "\"}";
 }
 
 void loop() {

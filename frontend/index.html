@@ -2,30 +2,95 @@
 <html>
 <head>
     <title>Dashboard Eventos</title>
+    <style>
+        body { font-family: sans-serif; background: #f1f5f9; padding: 30px; color: #1e293b; }
+        h1 { margin-bottom: 10px; }
+        .bar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .bar button, .bar select { padding: 8px 16px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; cursor: pointer; }
+        .bar button:hover { background: #e2e8f0; }
+        .bar span { color: #64748b; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+        th { background: #f8fafc; font-weight: 600; color: #475569; }
+        tr:hover { background: #f8fafc; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
+        .badge.info { background: #dbeafe; color: #1d4ed8; }
+        .badge.warning { background: #fef3c7; color: #b45309; }
+        .badge.critical { background: #fee2e2; color: #b91c1c; }
+        .empty { color: #94a3b8; text-align: center; padding: 40px; }
+        .error { color: #dc2626; }
+    </style>
 </head>
 <body>
 
-<h1>Eventos</h1>
+<h1>Dashboard Eventos</h1>
+<div class="bar">
+    <button onclick="cargar()">Actualizar</button>
+    <select id="limitSelect" onchange="cargar()">
+        <option value="5">Últimos 5</option>
+        <option value="10" selected>Últimos 10</option>
+        <option value="20">Últimos 20</option>
+        <option value="50">Últimos 50</option>
+    </select>
+    <span id="contador"></span>
+</div>
 
-<button onclick="cargar()">Actualizar</button>
-
-<pre id="data"></pre>
+<div id="tabla"></div>
 
 <script>
+const API = `http://${window.location.hostname}:3000`;
 
 async function cargar() {
+    const limit = document.getElementById('limitSelect').value;
+    const el = document.getElementById('tabla');
+    const cont = document.getElementById('contador');
 
-    const res = await fetch(`http://${window.location.hostname}:3000/events`);
+    try {
+        const res = await fetch(`${API}/api/v1/eventos/recientes/limite/${limit}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
 
-    const data = await res.json();
+        cont.textContent = `${data.length} eventos`;
 
-    document.getElementById('data').innerText =
-        JSON.stringify(data, null, 2);
+        if (!data.length) {
+            el.innerHTML = '<div class="empty">No hay eventos registrados</div>';
+            return;
+        }
+
+        let html = `<table>
+            <thead><tr>
+                <th>ID</th>
+                <th>Robot</th>
+                <th>Tipo</th>
+                <th>Evento</th>
+                <th>Nivel</th>
+                <th>Datos</th>
+                <th>Timestamp</th>
+            </tr></thead><tbody>`;
+
+        for (const e of data) {
+            const nivel = e.nivel || 'info';
+            const datos = e.datos ? JSON.stringify(e.datos) : '—';
+            html += `<tr>
+                <td style="font-size:0.8rem;color:#64748b">${e._id?.slice(-6) || '—'}</td>
+                <td>${e.robot_id || '—'}</td>
+                <td>${e.tipo || '—'}</td>
+                <td>${e.evento || '—'}</td>
+                <td><span class="badge ${nivel}">${nivel}</span></td>
+                <td style="font-size:0.8rem;color:#64748b">${datos}</td>
+                <td>${e.timestamp || '—'}</td>
+            </tr>`;
+        }
+
+        html += '</tbody></table>';
+        el.innerHTML = html;
+    } catch (e) {
+        el.innerHTML = `<div class="error">Error al conectar con el backend: ${e.message}</div>`;
+        cont.textContent = '';
+    }
 }
 
 cargar();
-
 </script>
-
 </body>
 </html>
