@@ -1,31 +1,302 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Dashboard Eventos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Robótico - Grupo 1</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 5px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .content { padding: 30px; }
+        .backend-status {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .status-online { background: #d4edda; color: #155724; }
+        .status-offline { background: #f8d7da; color: #721c24; }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .metric-card:hover { transform: translateY(-5px); }
+        .metric-number { font-size: 32px; font-weight: bold; }
+        .metric-label { font-size: 14px; margin-top: 8px; opacity: 0.9; }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-primary { background: #2a5298; color: white; }
+        .btn-primary:hover { background: #1e3c72; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        select, input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; }
+        .table-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid #e0e0e0; }
+        .events-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .events-table th, .events-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .events-table th { background: #f8f9fa; font-weight: 600; }
+        .events-table tr:hover { background: #f8f9fa; }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .badge-movimiento { background: #d4edda; color: #155724; }
+        .badge-sensor { background: #d1ecf1; color: #0c5460; }
+        .badge-error { background: #f8d7da; color: #721c24; }
+        .badge-prueba { background: #e2d5f7; color: #4a0e6b; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .footer {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+        @media (max-width: 768px) {
+            .content { padding: 15px; }
+            .metrics { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
 </head>
 <body>
-
-<h1>Eventos</h1>
-
-<button onclick="cargar()">Actualizar</button>
-
-<pre id="data"></pre>
-
-<script>
-
-async function cargar() {
-
-    const res = await fetch(`http://${window.location.hostname}:3000/events`);
-
-    const data = await res.json();
-
-    document.getElementById('data').innerText =
-        JSON.stringify(data, null, 2);
-}
-
-cargar();
-
-</script>
-
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Sistema de Monitoreo Robótico</h1>
+            <p>Dashboard en Tiempo Real - Proyecto Final SO2 - Grupo 1</p>
+        </div>
+        <div class="content">
+            <div id="backendStatus" class="backend-status">Verificando conexión...</div>
+            
+            <div class="metrics">
+                <div class="metric-card"><div class="metric-number" id="totalEventos">0</div><div class="metric-label">📊 Total Eventos</div></div>
+                <div class="metric-card"><div class="metric-number" id="movimientos">0</div><div class="metric-label">🚶 Movimientos</div></div>
+                <div class="metric-card"><div class="metric-number" id="errores">0</div><div class="metric-label">⚠️ Errores</div></div>
+                <div class="metric-card"><div class="metric-number" id="sensores">0</div><div class="metric-label">📡 Sensores</div></div>
+                <div class="metric-card"><div class="metric-number" id="temperatura">0</div><div class="metric-label">🌡️ Temperatura</div></div>
+                <div class="metric-card"><div class="metric-number" id="energia">0</div><div class="metric-label">⚡ Energía</div></div>
+            </div>
+            
+            <div class="controls">
+                <div>
+                    <button class="btn btn-primary" onclick="refreshAll()">🔄 Actualizar</button>
+                    <button class="btn btn-success" onclick="sendTestEvent()">🧪 Enviar Evento Test</button>
+                </div>
+                <div>
+                    <select id="filterType" onchange="loadEvents()">
+                        <option value="">Todos los tipos</option>
+                        <option value="movimiento">Movimiento</option>
+                        <option value="sensor">Sensor</option>
+                        <option value="error">Error</option>
+                        <option value="prueba">Prueba</option>
+                    </select>
+                    <label><input type="checkbox" id="autoRefresh" checked onchange="toggleAutoRefresh()"> Auto-refresh (5s)</label>
+                </div>
+            </div>
+            
+            <h3>📋 Eventos Recientes</h3>
+            <div id="eventsContainer"><div class="loading">Cargando eventos...</div></div>
+        </div>
+        <div class="footer">
+            <p>🐳 FastAPI + MongoDB + Docker | Proyecto Final SO2 - Grupo 1</p>
+            <p id="lastUpdate">Última actualización: --:--:--</p>
+        </div>
+    </div>
+    
+    <script>
+        const BACKEND_URL = 'http://' + window.location.hostname + ':3000';
+        const API_PREFIX = '/api';
+        let refreshInterval = null;
+        
+        async function checkBackend() {
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/health`);
+                if (response.ok) {
+                    document.getElementById('backendStatus').innerHTML = '✅ Backend Conectado';
+                    document.getElementById('backendStatus').className = 'backend-status status-online';
+                    return true;
+                } else {
+                    throw new Error('No responde');
+                }
+            } catch (error) {
+                document.getElementById('backendStatus').innerHTML = '❌ Backend Desconectado';
+                document.getElementById('backendStatus').className = 'backend-status status-offline';
+                return false;
+            }
+        }
+        
+        async function loadStats() {
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/stats`);
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalEventos').innerText = stats.total_eventos || 0;
+                    document.getElementById('movimientos').innerText = stats.movimientos || 0;
+                    document.getElementById('errores').innerText = stats.errores || 0;
+                    document.getElementById('sensores').innerText = stats.sensores || 0;
+                    document.getElementById('temperatura').innerText = stats.temperatura || 0;
+                    document.getElementById('energia').innerText = stats.energia || 0;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        async function loadEvents() {
+            const filter = document.getElementById('filterType').value;
+            let url = `${BACKEND_URL}${API_PREFIX}/events/latest?limit=100`;
+            if (filter) {
+                url = `${BACKEND_URL}${API_PREFIX}/events/type/${filter}`;
+            }
+            
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const events = await response.json();
+                    displayEvents(events);
+                } else {
+                    document.getElementById('eventsContainer').innerHTML = '<div class="loading">Error al cargar eventos</div>';
+                }
+            } catch (error) {
+                document.getElementById('eventsContainer').innerHTML = '<div class="loading">❌ Error de conexión</div>';
+            }
+        }
+        
+        function displayEvents(events) {
+            if (!events || events.length === 0) {
+                document.getElementById('eventsContainer').innerHTML = '<div class="loading">📭 No hay eventos. Presiona "Enviar Evento Test"</div>';
+                return;
+            }
+            
+            let html = '<div class="table-wrapper"><table class="events-table"><thead><tr><th>📅 Fecha</th><th>🤖 Robot</th><th>🏷️ Tipo</th><th>⚡ Evento</th><th>📊 Detalles</th></tr></thead><tbody>';
+            
+            const sortedEvents = [...events].reverse().slice(0, 50);
+            for (const event of sortedEvents) {
+                const fecha = event.fecha || event.timestamp || new Date().toISOString();
+                const tipo = event.tipo || 'general';
+                let badgeClass = 'badge';
+                if (tipo === 'movimiento') badgeClass += ' badge-movimiento';
+                else if (tipo === 'sensor') badgeClass += ' badge-sensor';
+                else if (tipo === 'error') badgeClass += ' badge-error';
+                else if (tipo === 'prueba') badgeClass += ' badge-prueba';
+                
+                let detalles = '-';
+                if (event.datos) detalles = typeof event.datos === 'object' ? JSON.stringify(event.datos).substring(0, 50) : event.datos;
+                
+                html += `<tr>
+                    <td>${new Date(fecha).toLocaleString()}</td>
+                    <td>${event.robot_id || 'N/A'}</td>
+                    <td><span class="${badgeClass}">${tipo}</span></td>
+                    <td><strong>${event.evento || '-'}</strong></td>
+                    <td><small>${detalles}</small></td>
+                </tr>`;
+            }
+            
+            html += '</tbody></table></div><div style="margin-top:10px;font-size:12px;color:#666;text-align:right;">Mostrando ' + Math.min(sortedEvents.length, 50) + ' de ' + events.length + ' eventos</div>';
+            document.getElementById('eventsContainer').innerHTML = html;
+            document.getElementById('lastUpdate').innerHTML = 'Última actualización: ' + new Date().toLocaleTimeString();
+        }
+        
+        async function sendTestEvent() {
+            const testEvent = {
+                robot_id: "dashboard_test",
+                tipo: "prueba",
+                evento: "test_desde_dashboard",
+                nivel: "info",
+                datos: { timestamp: new Date().toISOString(), origen: "web_interface" }
+            };
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/event`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testEvent)
+                });
+                if (response.status === 201) {
+                    alert('✅ Evento enviado');
+                    refreshAll();
+                } else {
+                    alert('❌ Error al enviar');
+                }
+            } catch (error) {
+                alert('❌ Error de conexión');
+            }
+        }
+        
+        async function refreshAll() {
+            await checkBackend();
+            await loadStats();
+            await loadEvents();
+        }
+        
+        function toggleAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            if (document.getElementById('autoRefresh').checked) {
+                refreshInterval = setInterval(refreshAll, 5000);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshAll();
+            toggleAutoRefresh();
+        });
+    </script>
 </body>
 </html>
