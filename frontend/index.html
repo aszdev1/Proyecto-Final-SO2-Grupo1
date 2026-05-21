@@ -3,24 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Robótico - Tiempo Real</title>
+    <title>Dashboard Robótico - Grupo 1</title>
+    <!-- Chart.js para gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             padding: 20px;
         }
+        
         .container {
             max-width: 1400px;
             margin: 0 auto;
             animation: fadeIn 0.5s ease-out;
         }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -28,8 +34,10 @@
             border-radius: 15px 15px 0 0;
             text-align: center;
         }
+        
         .header h1 { font-size: 28px; margin-bottom: 5px; }
         .header p { opacity: 0.9; font-size: 14px; }
+        
         .status-bar {
             background: white;
             padding: 15px 30px;
@@ -40,7 +48,9 @@
             gap: 15px;
             border-bottom: 1px solid #e0e0e0;
         }
-        .status-indicator { display: flex; align-items: center; gap: 20px; }
+        
+        .status-indicator { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        
         .status-badge {
             display: flex;
             align-items: center;
@@ -50,8 +60,10 @@
             font-size: 13px;
             font-weight: bold;
         }
+        
         .status-badge.online { background: #d4edda; color: #155724; }
         .status-badge.offline { background: #f8d7da; color: #721c24; }
+        
         .live-badge {
             background: #dc3545;
             color: white;
@@ -61,12 +73,15 @@
             font-weight: bold;
             animation: pulse 1.5s infinite;
         }
+        
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.6; }
             100% { opacity: 1; }
         }
+        
         .last-update { color: #666; font-size: 12px; }
+        
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -74,6 +89,7 @@
             padding: 30px;
             background: white;
         }
+        
         .metric-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -83,10 +99,38 @@
             transition: transform 0.3s;
             cursor: pointer;
         }
+        
         .metric-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .metric-number { font-size: 36px; font-weight: bold; margin-bottom: 5px; }
         .metric-label { font-size: 14px; opacity: 0.9; }
         .metric-icon { font-size: 24px; margin-bottom: 10px; }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .chart-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .chart-card h3 {
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .chart-canvas {
+            max-height: 300px;
+        }
+        
         .controls {
             padding: 20px 30px;
             background: white;
@@ -97,6 +141,7 @@
             border-top: 1px solid #e0e0e0;
             border-bottom: 1px solid #e0e0e0;
         }
+        
         .btn {
             padding: 10px 20px;
             border: none;
@@ -106,10 +151,14 @@
             font-weight: bold;
             transition: all 0.3s;
         }
+        
         .btn-primary { background: #2a5298; color: white; }
         .btn-primary:hover { background: #1e3c72; transform: scale(1.02); }
         .btn-success { background: #28a745; color: white; }
         .btn-success:hover { background: #218838; transform: scale(1.02); }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-warning:hover { background: #e0a800; }
+        
         select, input {
             padding: 8px 15px;
             border: 1px solid #ddd;
@@ -117,17 +166,21 @@
             font-size: 14px;
             cursor: pointer;
         }
-        .filter-group { display: flex; gap: 10px; align-items: center; margin-left: auto; }
+        
+        .filter-group { display: flex; gap: 10px; align-items: center; margin-left: auto; flex-wrap: wrap; }
+        
         .table-container {
             padding: 0 30px 30px 30px;
             background: white;
             overflow-x: auto;
         }
+        
         .events-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
         }
+        
         .events-table th {
             background: #f8f9fa;
             padding: 12px;
@@ -135,8 +188,10 @@
             font-weight: 600;
             border-bottom: 2px solid #e0e0e0;
         }
+        
         .events-table td { padding: 12px; border-bottom: 1px solid #e0e0e0; }
         .events-table tr:hover { background: #f8f9fa; }
+        
         .badge {
             display: inline-block;
             padding: 4px 12px;
@@ -144,6 +199,7 @@
             font-size: 11px;
             font-weight: bold;
         }
+        
         .badge-movimiento { background: #d4edda; color: #155724; }
         .badge-sensor { background: #d1ecf1; color: #0c5460; }
         .badge-error { background: #f8d7da; color: #721c24; }
@@ -152,12 +208,15 @@
         .badge-sistema { background: #cce5ff; color: #004085; }
         .badge-otro { background: #e2d5f7; color: #4a0e6b; }
         .badge-prueba { background: #e2d5f7; color: #4a0e6b; }
+        
         @keyframes highlight {
             0% { background: #fff3cd; }
             100% { background: transparent; }
         }
+        
         .new-event { animation: highlight 1s ease-out; }
         .loading { text-align: center; padding: 40px; color: #666; }
+        
         .footer {
             background: #f8f9fa;
             padding: 15px;
@@ -166,9 +225,11 @@
             font-size: 12px;
             border-radius: 0 0 15px 15px;
         }
+        
         @media (max-width: 768px) {
             body { padding: 10px; }
             .metrics-grid { grid-template-columns: repeat(2, 1fr); padding: 15px; }
+            .charts-container { grid-template-columns: 1fr; padding: 15px; }
             .controls { flex-direction: column; align-items: stretch; }
             .filter-group { margin-left: 0; justify-content: space-between; }
             .events-table th, .events-table td { padding: 8px; font-size: 11px; }
@@ -179,12 +240,13 @@
     <div class="container">
         <div class="header">
             <h1>🤖 Sistema de Monitoreo Robótico</h1>
-            <p>Dashboard en Tiempo Real - Proyecto Final SO2 - Grupo 1</p>
+            <p>Dashboard en Tiempo Real con Gráficas - Proyecto Final SO2 - Grupo 1</p>
         </div>
         
         <div class="status-bar">
             <div class="status-indicator">
                 <div id="backendStatus" class="status-badge online">🟢 Backend Conectado</div>
+                <div id="dbStatus" class="status-badge online">🗄️ MongoDB Conectado</div>
                 <div class="live-badge">🔴 EN VIVO</div>
             </div>
             <div class="last-update">
@@ -202,10 +264,22 @@
             <div class="metric-card"><div class="metric-icon">⚡</div><div class="metric-number" id="energia">0</div><div class="metric-label">Energía</div></div>
         </div>
         
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3>📊 Eventos por Tipo (Barras)</h3>
+                <canvas id="barChart" class="chart-canvas"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>🥧 Distribución de Eventos</h3>
+                <canvas id="pieChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+        
         <div class="controls">
             <div>
                 <button class="btn btn-primary" onclick="forceRefresh()">🔄 Actualizar Ahora</button>
                 <button class="btn btn-success" onclick="sendTestEvent()">🧪 Enviar Evento Test</button>
+                <button class="btn btn-warning" onclick="generateRandomEvent()">🎲 Evento Aleatorio</button>
             </div>
             <div class="filter-group">
                 <label>🔍 Filtrar:</label>
@@ -232,8 +306,8 @@
         </div>
         
         <div class="footer">
-            <p>🐳 FastAPI + MongoDB + Docker | Proyecto Final SO2 - Grupo 1</p>
-            <p>⚡ Los eventos se actualizan automáticamente cada 3 segundos</p>
+            <p>🐳 FastAPI + MongoDB + Nginx | Docker | DigitalOcean</p>
+            <p>⚡ Gráficas en tiempo real | Actualización automática cada 3 segundos</p>
         </div>
     </div>
     
@@ -242,8 +316,13 @@
         const API = `${BACKEND_URL}/api/v1/eventos`;
         let refreshInterval = null;
         let previousEvents = new Set();
+<<<<<<< HEAD
         let allEvents = [];
 
+=======
+        let barChart, pieChart;
+        
+>>>>>>> c86fe624adc96f5fcbf041d8055a8765497f206d
         async function checkBackend() {
             const el = document.getElementById('backendStatus');
             try {
@@ -258,6 +337,7 @@
                 return false;
             }
         }
+<<<<<<< HEAD
 
         function calcStats(events) {
             let total = events.length;
@@ -272,6 +352,116 @@
             document.getElementById('sensores').innerText = sen;
             document.getElementById('temperatura').innerText = temp;
             document.getElementById('energia').innerText = ener;
+=======
+        
+        async function checkDatabase() {
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/mongo-status`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const dbStatus = document.getElementById('dbStatus');
+                    if (data.status === 'connected') {
+                        dbStatus.innerHTML = '🗄️ MongoDB Conectado';
+                        dbStatus.className = 'status-badge online';
+                    } else {
+                        dbStatus.innerHTML = '🗄️ MongoDB Desconectado';
+                        dbStatus.className = 'status-badge offline';
+                    }
+                    return data.status === 'connected';
+                } else {
+                    throw new Error('No responde');
+                }
+            } catch (error) {
+                const dbStatus = document.getElementById('dbStatus');
+                dbStatus.innerHTML = '🗄️ MongoDB Desconectado';
+                dbStatus.className = 'status-badge offline';
+                return false;
+            }
+        }
+        
+        async function loadStats() {
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/stats`);
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalEventos').innerText = stats.total_eventos || 0;
+                    document.getElementById('movimientos').innerText = stats.movimientos || 0;
+                    document.getElementById('errores').innerText = stats.errores || 0;
+                    document.getElementById('sensores').innerText = stats.sensores || 0;
+                    document.getElementById('temperatura').innerText = stats.temperatura || 0;
+                    document.getElementById('energia').innerText = stats.energia || 0;
+                    
+                    updateCharts(stats);
+                    return stats;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+            return null;
+        }
+        
+        function updateCharts(stats) {
+            const tipos = ['movimientos', 'errores', 'sensores', 'temperatura', 'energia'];
+            const labels = ['Movimientos', 'Errores', 'Sensores', 'Temperatura', 'Energía'];
+            const valores = [
+                stats.movimientos || 0,
+                stats.errores || 0,
+                stats.sensores || 0,
+                stats.temperatura || 0,
+                stats.energia || 0
+            ];
+            
+            if (barChart) {
+                barChart.data.datasets[0].data = valores;
+                barChart.update();
+            } else {
+                const ctx = document.getElementById('barChart').getContext('2d');
+                barChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Cantidad de Eventos',
+                            data: valores,
+                            backgroundColor: ['#667eea', '#f56565', '#4299e1', '#ed8936', '#48bb78'],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { position: 'top' } }
+                    }
+                });
+            }
+            
+            const filteredData = valores.filter(v => v > 0);
+            const filteredLabels = labels.filter((_, i) => valores[i] > 0);
+            
+            if (pieChart) {
+                pieChart.data.datasets[0].data = filteredData;
+                pieChart.data.labels = filteredLabels;
+                pieChart.update();
+            } else {
+                const ctxPie = document.getElementById('pieChart').getContext('2d');
+                pieChart = new Chart(ctxPie, {
+                    type: 'pie',
+                    data: {
+                        labels: filteredLabels,
+                        datasets: [{
+                            data: filteredData,
+                            backgroundColor: ['#667eea', '#f56565', '#4299e1', '#ed8936', '#48bb78']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { position: 'right' } }
+                    }
+                });
+            }
+>>>>>>> c86fe624adc96f5fcbf041d8055a8765497f206d
         }
 
         async function loadEvents() {
@@ -329,10 +519,16 @@
         }
 
         async function sendTestEvent() {
+<<<<<<< HEAD
             const body = JSON.stringify({
+=======
+            const tipos = ['movimiento', 'sensor', 'error', 'temperatura', 'energia'];
+            const eventos = ['test', 'lectura', 'cambio', 'alerta'];
+            const testEvent = {
+>>>>>>> c86fe624adc96f5fcbf041d8055a8765497f206d
                 robot_id: "dashboard_test",
-                tipo: "prueba",
-                evento: "test_tiempo_real",
+                tipo: tipos[Math.floor(Math.random() * tipos.length)],
+                evento: eventos[Math.floor(Math.random() * eventos.length)],
                 nivel: "info",
                 datos: { origen: "web_dashboard" },
                 timestamp: new Date().toLocaleDateString('es-GB') + ' ' + new Date().toLocaleTimeString('en-US', { hour12: true })
@@ -344,6 +540,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: body
                 });
+<<<<<<< HEAD
                 if (r.ok) { alert('✅ Evento enviado'); refreshAll(); }
                 else { const j = await r.json(); alert('❌ ' + JSON.stringify(j)); }
             } catch (e) { alert('❌ Error de conexión'); }
@@ -353,6 +550,99 @@
         function forceRefresh() { refreshAll(); }
         async function refreshAll() { await checkBackend(); if (document.getElementById('backendStatus').className.includes('online')) await loadEvents(); }
 
+=======
+                if (response.status === 201) {
+                    showNotification('✅ Evento enviado: ' + testEvent.tipo, 'success');
+                    refreshAll();
+                } else {
+                    showNotification('❌ Error al enviar', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error de conexión', 'error');
+            }
+        }
+        
+        async function generateRandomEvent() {
+            const tipos = ['movimiento', 'sensor', 'error', 'temperatura', 'energia'];
+            const movimientos = ['adelante', 'atras', 'izquierda', 'derecha', 'giro'];
+            const sensores = ['ultrasonido', 'infrarrojo', 'lidar', 'acelerometro'];
+            const errores = ['motor_fallo', 'bateria_baja', 'sensor_error', 'comunicacion'];
+            
+            let evento, datos = {};
+            const tipo = tipos[Math.floor(Math.random() * tipos.length)];
+            
+            if (tipo === 'movimiento') {
+                evento = movimientos[Math.floor(Math.random() * movimientos.length)];
+                datos = { velocidad: Math.floor(Math.random() * 100) + 1 };
+            } else if (tipo === 'sensor') {
+                evento = sensores[Math.floor(Math.random() * sensores.length)];
+                datos = { distancia_cm: Math.floor(Math.random() * 200) };
+            } else if (tipo === 'error') {
+                evento = errores[Math.floor(Math.random() * errores.length)];
+                datos = { codigo: Math.floor(Math.random() * 1000) };
+            } else if (tipo === 'temperatura') {
+                evento = 'lectura';
+                datos = { temperatura_c: (Math.random() * 50).toFixed(1) };
+            } else {
+                evento = 'consumo';
+                datos = { consumo_ma: Math.floor(Math.random() * 500) + 100 };
+            }
+            
+            const randomEvent = {
+                robot_id: "robot_" + Math.floor(Math.random() * 5 + 1),
+                tipo: tipo,
+                evento: evento,
+                nivel: tipo === 'error' ? 'critical' : 'info',
+                datos: datos
+            };
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/event`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(randomEvent)
+                });
+                if (response.status === 201) {
+                    showNotification('🎲 Evento aleatorio: ' + tipo + ' - ' + evento, 'success');
+                    refreshAll();
+                } else {
+                    showNotification('❌ Error al generar evento', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error de conexión', 'error');
+            }
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#28a745' : '#dc3545'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 1000;
+                animation: fadeIn 0.3s ease-out;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            notification.innerHTML = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+        
+        function filterEvents() { loadEvents(); }
+        function forceRefresh() { refreshAll(); }
+        
+        async function refreshAll() {
+            await checkBackend();
+            await checkDatabase();
+            const stats = await loadStats();
+            await loadEvents();
+        }
+        
+>>>>>>> c86fe624adc96f5fcbf041d8055a8765497f206d
         function startAutoRefresh() {
             if (refreshInterval) clearInterval(refreshInterval);
             refreshInterval = setInterval(refreshAll, 3000);
@@ -362,3 +652,4 @@
     </script>
 </body>
 </html>
+EOF
