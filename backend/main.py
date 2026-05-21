@@ -137,6 +137,11 @@ def registro_evento(evento_arduino: Evento_movimiento):
 
 
 
+#***************endpoint health solo backend********************
+@app.get("/api/v1/health")
+def health():
+    return {"status": "online"}
+
 #***************endpoint estado MongoDB********************
 @app.get("/api/v1/status")
 def estado_db():

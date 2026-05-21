@@ -9,7 +9,7 @@ from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-CHECK_INTERVAL = 10
+CHECK_INTERVAL = 3
 RETENTION_MINUTES = 10
 DATA_FILE = os.path.join(os.path.dirname(__file__), "data", "monitor.json")
 

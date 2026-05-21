@@ -149,6 +149,8 @@
         .badge-error { background: #f8d7da; color: #721c24; }
         .badge-temperatura { background: #fff3cd; color: #856404; }
         .badge-energia { background: #d4edda; color: #155724; }
+        .badge-sistema { background: #cce5ff; color: #004085; }
+        .badge-otro { background: #e2d5f7; color: #4a0e6b; }
         .badge-prueba { background: #e2d5f7; color: #4a0e6b; }
         @keyframes highlight {
             0% { background: #fff3cd; }
@@ -237,158 +239,126 @@
     
     <script>
         const BACKEND_URL = 'http://' + window.location.hostname + ':3000';
-        const API_PREFIX = '/api';
+        const API = `${BACKEND_URL}/api/v1/eventos`;
         let refreshInterval = null;
         let previousEvents = new Set();
-        
+        let allEvents = [];
+
         async function checkBackend() {
+            const el = document.getElementById('backendStatus');
             try {
-                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/health`);
-                if (response.ok) {
-                    const statusDiv = document.getElementById('backendStatus');
-                    statusDiv.innerHTML = '🟢 Backend Conectado';
-                    statusDiv.className = 'status-badge online';
-                    return true;
-                } else {
-                    throw new Error('No responde');
-                }
-            } catch (error) {
-                const statusDiv = document.getElementById('backendStatus');
-                statusDiv.innerHTML = '🔴 Backend Desconectado';
-                statusDiv.className = 'status-badge offline';
+                const r = await fetch(`${BACKEND_URL}/api/v1/health`, { signal: AbortSignal.timeout(3000) });
+                if (!r.ok) throw new Error('offline');
+                el.innerHTML = '🟢 Backend Conectado';
+                el.className = 'status-badge online';
+                return true;
+            } catch (e) {
+                el.innerHTML = '🔴 Backend Desconectado';
+                el.className = 'status-badge offline';
                 return false;
             }
         }
-        
-        async function loadStats() {
-            try {
-                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/stats`);
-                if (response.ok) {
-                    const stats = await response.json();
-                    document.getElementById('totalEventos').innerText = stats.total_eventos || 0;
-                    document.getElementById('movimientos').innerText = stats.movimientos || 0;
-                    document.getElementById('errores').innerText = stats.errores || 0;
-                    document.getElementById('sensores').innerText = stats.sensores || 0;
-                    document.getElementById('temperatura').innerText = stats.temperatura || 0;
-                    document.getElementById('energia').innerText = stats.energia || 0;
-                }
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
+
+        function calcStats(events) {
+            let total = events.length;
+            let mov = events.filter(e => e.tipo === 'movimiento').length;
+            let err = events.filter(e => e.tipo === 'error').length;
+            let sen = events.filter(e => e.tipo === 'sensor').length;
+            let temp = events.filter(e => e.tipo === 'temperatura').length;
+            let ener = events.filter(e => e.tipo === 'energia').length;
+            document.getElementById('totalEventos').innerText = total;
+            document.getElementById('movimientos').innerText = mov;
+            document.getElementById('errores').innerText = err;
+            document.getElementById('sensores').innerText = sen;
+            document.getElementById('temperatura').innerText = temp;
+            document.getElementById('energia').innerText = ener;
         }
-        
+
         async function loadEvents() {
             const filter = document.getElementById('filterType').value;
             const limit = document.getElementById('limitEvents').value;
-            let url = `${BACKEND_URL}${API_PREFIX}/events/latest?limit=${limit}`;
-            if (filter) {
-                url = `${BACKEND_URL}${API_PREFIX}/events/type/${filter}`;
-            }
-            
+
             try {
-                const response = await fetch(url);
-                if (response.ok) {
-                    const events = await response.json();
-                    displayEvents(events);
-                } else {
-                    document.getElementById('eventsContainer').innerHTML = '<div class="loading">❌ Error al cargar eventos</div>';
-                }
-            } catch (error) {
+                const response = await fetch(`${API}/recientes/limite/${limit}`, { signal: AbortSignal.timeout(3000) });
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                allEvents = await response.json();
+                calcStats(allEvents);
+
+                let events = allEvents;
+                if (filter) events = allEvents.filter(e => e.tipo === filter);
+
+                displayEvents(events);
+            } catch (e) {
                 document.getElementById('eventsContainer').innerHTML = '<div class="loading">❌ Error de conexión</div>';
             }
         }
-        
+
         function displayEvents(events) {
             if (!events || events.length === 0) {
                 document.getElementById('eventsContainer').innerHTML = '<div class="loading">📭 No hay eventos. Presiona "Enviar Evento Test"</div>';
                 return;
             }
-            
-            const currentEventIds = new Set(events.map(e => e._id));
-            const newEvents = [...currentEventIds].filter(id => !previousEvents.has(id));
-            
+
+            const currentIds = new Set(events.map(e => e._id));
+            const newIds = [...currentIds].filter(id => !previousEvents.has(id));
+
             let html = '<table class="events-table"><thead><tr><th>📅 Fecha/Hora</th><th>🤖 Robot</th><th>🏷️ Tipo</th><th>⚡ Evento</th><th>📝 Nivel</th><th>📊 Datos</th></tr></thead><tbody>';
-            
-            const sortedEvents = [...events].reverse();
-            for (const event of sortedEvents) {
-                const fecha = event.fecha || event.timestamp || new Date().toISOString();
+
+            for (const event of [...events].reverse()) {
+                const ts = event.timestamp || event.fecha || '';
                 const tipo = event.tipo || 'general';
                 const nivel = event.nivel || 'info';
-                const isNew = newEvents.includes(event._id);
-                
-                let badgeClass = 'badge';
-                if (tipo === 'movimiento') badgeClass += ' badge-movimiento';
-                else if (tipo === 'sensor') badgeClass += ' badge-sensor';
-                else if (tipo === 'error') badgeClass += ' badge-error';
-                else if (tipo === 'temperatura') badgeClass += ' badge-temperatura';
-                else if (tipo === 'energia') badgeClass += ' badge-energia';
-                
-                let detalles = '-';
-                if (event.datos) {
-                    if (typeof event.datos === 'object') {
-                        detalles = JSON.stringify(event.datos);
-                        if (detalles.length > 60) detalles = detalles.substring(0, 60) + '...';
-                    } else {
-                        detalles = event.datos;
-                    }
-                }
-                
-                const rowClass = isNew ? 'new-event' : '';
-                html += `<tr class="${rowClass}">
-                    <td><small>${new Date(fecha).toLocaleString()}</small></td>
+                const isNew = newIds.includes(event._id);
+                const badge = 'badge badge-' + (tipo === 'otro' ? 'prueba' : tipo);
+                const datos = event.datos ? JSON.stringify(event.datos) : '-';
+
+                html += `<tr class="${isNew ? 'new-event' : ''}">
+                    <td><small>${ts}</small></td>
                     <td><strong>${event.robot_id || 'N/A'}</strong></td>
-                    <td><span class="${badgeClass}">${tipo}</span></td>
+                    <td><span class="${badge}">${tipo}</span></td>
                     <td>${event.evento || '-'}</td>
                     <td>${nivel}</td>
-                    <td><small title='${JSON.stringify(event.datos || {})}'>${detalles}</small></td>
+                    <td><small title="${datos}">${datos.length > 50 ? datos.slice(0, 50) + '...' : datos}</small></td>
                 </tr>`;
             }
-            
-            html += '</tbody></table><div style="margin-top:15px;text-align:center;font-size:12px;color:#666;">📊 Mostrando ' + sortedEvents.length + ' eventos | 🔄 Auto-refresh cada 3 segundos</div>';
+
+            html += '</tbody></table><div style="margin-top:15px;text-align:center;font-size:12px;color:#666;">📊 Mostrando ' + events.length + ' eventos | 🔄 Cada 3s</div>';
             document.getElementById('eventsContainer').innerHTML = html;
-            document.getElementById('lastUpdate').innerHTML = ` | ${new Date().toLocaleTimeString()}`;
-            previousEvents = currentEventIds;
+            document.getElementById('lastUpdate').innerHTML = ' | ' + new Date().toLocaleTimeString();
+            previousEvents = currentIds;
         }
-        
+
         async function sendTestEvent() {
-            const testEvent = {
+            const body = JSON.stringify({
                 robot_id: "dashboard_test",
                 tipo: "prueba",
                 evento: "test_tiempo_real",
                 nivel: "info",
-                datos: { timestamp: new Date().toISOString(), origen: "web_dashboard" }
-            };
-            
+                datos: { origen: "web_dashboard" },
+                timestamp: new Date().toLocaleDateString('es-GB') + ' ' + new Date().toLocaleTimeString('en-US', { hour12: true })
+            });
+
             try {
-                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/event`, {
+                const r = await fetch(API, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(testEvent)
+                    body: body
                 });
-                if (response.status === 201) {
-                    alert('✅ Evento de prueba enviado');
-                    refreshAll();
-                } else {
-                    alert('❌ Error al enviar');
-                }
-            } catch (error) {
-                alert('❌ Error de conexión');
-            }
+                if (r.ok) { alert('✅ Evento enviado'); refreshAll(); }
+                else { const j = await r.json(); alert('❌ ' + JSON.stringify(j)); }
+            } catch (e) { alert('❌ Error de conexión'); }
         }
-        
+
         function filterEvents() { loadEvents(); }
         function forceRefresh() { refreshAll(); }
-        async function refreshAll() { await checkBackend(); await loadStats(); await loadEvents(); }
-        
+        async function refreshAll() { await checkBackend(); if (document.getElementById('backendStatus').className.includes('online')) await loadEvents(); }
+
         function startAutoRefresh() {
             if (refreshInterval) clearInterval(refreshInterval);
             refreshInterval = setInterval(refreshAll, 3000);
         }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            startAutoRefresh();
-            refreshAll();
-        });
+
+        document.addEventListener('DOMContentLoaded', () => { startAutoRefresh(); refreshAll(); });
     </script>
 </body>
 </html>
