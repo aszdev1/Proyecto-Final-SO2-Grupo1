@@ -134,3 +134,27 @@ def registro_evento(evento_arduino: Evento_movimiento):
         "mensaje": "Evento registrado",
         "id": str(resultado.inserted_id)
     }
+
+
+
+#***************endpoint estado MongoDB********************
+@app.get("/api/v1/status")
+def estado_db():
+
+    try:
+
+        # comando ping a MongoDB
+        client.admin.command("ping")
+
+        return {
+            "status": "online",
+            "database": MONGO_DB,
+            "mongo": "conectado"
+        }
+
+    except Exception as e:
+
+        return {
+            "status": "offline",
+            "error": str(e)
+        }
