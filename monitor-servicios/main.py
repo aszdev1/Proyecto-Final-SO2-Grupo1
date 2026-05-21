@@ -9,7 +9,7 @@ from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-CHECK_INTERVAL = 15
+CHECK_INTERVAL = 10
 RETENTION_MINUTES = 10
 DATA_FILE = os.path.join(os.path.dirname(__file__), "data", "monitor.json")
 
@@ -157,6 +157,7 @@ async def get_stats():
             if total > 0 else 0
         )
         stats[name] = {
+            "label": SERVICES[name]["label"],
             "uptime_pct": uptime_pct,
             "total_checks": total,
             "online_checks": online,
