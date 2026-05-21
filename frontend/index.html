@@ -115,6 +115,7 @@
             <div class="status-indicator">
                 <div id="backendStatus" class="status-badge online">🟢 Backend Conectado</div>
                 <div class="live-badge">🔴 EN VIVO</div>
+                <a id="monitorLink" href="#" target="_blank" style="color:#2a5298;font-size:13px;font-weight:600;text-decoration:none;">📊 Monitor</a>
             </div>
             <div class="last-update">
                 📡 Actualización cada 3 segundos <span id="lastUpdate"></span>
@@ -336,7 +337,10 @@
         async function refreshAll() { await checkBackend(); await loadEvents(); }
         function startAutoRefresh() { clearInterval(refreshInterval); refreshInterval = setInterval(refreshAll, 3000); }
 
-        document.addEventListener('DOMContentLoaded', () => { startAutoRefresh(); refreshAll(); });
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('monitorLink').href = `http://${window.location.hostname}:4000`;
+            startAutoRefresh(); refreshAll();
+        });
     </script>
 </body>
 </html>
