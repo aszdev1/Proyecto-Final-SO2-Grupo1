@@ -1,96 +1,394 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Dashboard Eventos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Robótico - Tiempo Real</title>
     <style>
-        body { font-family: sans-serif; background: #f1f5f9; padding: 30px; color: #1e293b; }
-        h1 { margin-bottom: 10px; }
-        .bar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
-        .bar button, .bar select { padding: 8px 16px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; cursor: pointer; }
-        .bar button:hover { background: #e2e8f0; }
-        .bar span { color: #64748b; font-size: 0.9rem; }
-        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
-        th { background: #f8fafc; font-weight: 600; color: #475569; }
-        tr:hover { background: #f8fafc; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
-        .badge.info { background: #dbeafe; color: #1d4ed8; }
-        .badge.warning { background: #fef3c7; color: #b45309; }
-        .badge.critical { background: #fee2e2; color: #b91c1c; }
-        .empty { color: #94a3b8; text-align: center; padding: 40px; }
-        .error { color: #dc2626; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 5px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .status-bar {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .status-indicator { display: flex; align-items: center; gap: 20px; }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .status-badge.online { background: #d4edda; color: #155724; }
+        .status-badge.offline { background: #f8d7da; color: #721c24; }
+        .live-badge {
+            background: #dc3545;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        .last-update { color: #666; font-size: 12px; }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: white;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .metric-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .metric-number { font-size: 36px; font-weight: bold; margin-bottom: 5px; }
+        .metric-label { font-size: 14px; opacity: 0.9; }
+        .metric-icon { font-size: 24px; margin-bottom: 10px; }
+        .controls {
+            padding: 20px 30px;
+            background: white;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-primary { background: #2a5298; color: white; }
+        .btn-primary:hover { background: #1e3c72; transform: scale(1.02); }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; transform: scale(1.02); }
+        select, input {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .filter-group { display: flex; gap: 10px; align-items: center; margin-left: auto; }
+        .table-container {
+            padding: 0 30px 30px 30px;
+            background: white;
+            overflow-x: auto;
+        }
+        .events-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .events-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .events-table td { padding: 12px; border-bottom: 1px solid #e0e0e0; }
+        .events-table tr:hover { background: #f8f9fa; }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .badge-movimiento { background: #d4edda; color: #155724; }
+        .badge-sensor { background: #d1ecf1; color: #0c5460; }
+        .badge-error { background: #f8d7da; color: #721c24; }
+        .badge-temperatura { background: #fff3cd; color: #856404; }
+        .badge-energia { background: #d4edda; color: #155724; }
+        .badge-prueba { background: #e2d5f7; color: #4a0e6b; }
+        @keyframes highlight {
+            0% { background: #fff3cd; }
+            100% { background: transparent; }
+        }
+        .new-event { animation: highlight 1s ease-out; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .footer {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            border-radius: 0 0 15px 15px;
+        }
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); padding: 15px; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .filter-group { margin-left: 0; justify-content: space-between; }
+            .events-table th, .events-table td { padding: 8px; font-size: 11px; }
+        }
     </style>
 </head>
 <body>
-
-<h1>Dashboard Eventos</h1>
-<div class="bar">
-    <button onclick="cargar()">Actualizar</button>
-    <select id="limitSelect" onchange="cargar()">
-        <option value="5">Últimos 5</option>
-        <option value="10" selected>Últimos 10</option>
-        <option value="20">Últimos 20</option>
-        <option value="50">Últimos 50</option>
-    </select>
-    <span id="contador"></span>
-</div>
-
-<div id="tabla"></div>
-
-<script>
-const API = `http://${window.location.hostname}:3000`;
-
-async function cargar() {
-    const limit = document.getElementById('limitSelect').value;
-    const el = document.getElementById('tabla');
-    const cont = document.getElementById('contador');
-
-    try {
-        const res = await fetch(`${API}/api/v1/eventos/recientes/limite/${limit}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-
-        cont.textContent = `${data.length} eventos`;
-
-        if (!data.length) {
-            el.innerHTML = '<div class="empty">No hay eventos registrados</div>';
-            return;
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Sistema de Monitoreo Robótico</h1>
+            <p>Dashboard en Tiempo Real - Proyecto Final SO2 - Grupo 1</p>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div id="backendStatus" class="status-badge online">🟢 Backend Conectado</div>
+                <div class="live-badge">🔴 EN VIVO</div>
+            </div>
+            <div class="last-update">
+                📡 Actualización cada 3 segundos
+                <span id="lastUpdate"></span>
+            </div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card"><div class="metric-icon">📊</div><div class="metric-number" id="totalEventos">0</div><div class="metric-label">Total Eventos</div></div>
+            <div class="metric-card"><div class="metric-icon">🚶</div><div class="metric-number" id="movimientos">0</div><div class="metric-label">Movimientos</div></div>
+            <div class="metric-card"><div class="metric-icon">⚠️</div><div class="metric-number" id="errores">0</div><div class="metric-label">Errores</div></div>
+            <div class="metric-card"><div class="metric-icon">📡</div><div class="metric-number" id="sensores">0</div><div class="metric-label">Sensores</div></div>
+            <div class="metric-card"><div class="metric-icon">🌡️</div><div class="metric-number" id="temperatura">0</div><div class="metric-label">Temperatura</div></div>
+            <div class="metric-card"><div class="metric-icon">⚡</div><div class="metric-number" id="energia">0</div><div class="metric-label">Energía</div></div>
+        </div>
+        
+        <div class="controls">
+            <div>
+                <button class="btn btn-primary" onclick="forceRefresh()">🔄 Actualizar Ahora</button>
+                <button class="btn btn-success" onclick="sendTestEvent()">🧪 Enviar Evento Test</button>
+            </div>
+            <div class="filter-group">
+                <label>🔍 Filtrar:</label>
+                <select id="filterType" onchange="filterEvents()">
+                    <option value="">📋 Todos</option>
+                    <option value="movimiento">🚶 Movimiento</option>
+                    <option value="sensor">📡 Sensor</option>
+                    <option value="error">⚠️ Error</option>
+                    <option value="temperatura">🌡️ Temperatura</option>
+                    <option value="energia">⚡ Energía</option>
+                </select>
+                <label>📌 Mostrar:</label>
+                <select id="limitEvents" onchange="filterEvents()">
+                    <option value="20">Últimos 20</option>
+                    <option value="50" selected>Últimos 50</option>
+                    <option value="100">Últimos 100</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <h3 style="margin-bottom: 15px;">📋 Eventos en Tiempo Real</h3>
+            <div id="eventsContainer"><div class="loading">🔄 Cargando eventos...</div></div>
+        </div>
+        
+        <div class="footer">
+            <p>🐳 FastAPI + MongoDB + Docker | Proyecto Final SO2 - Grupo 1</p>
+            <p>⚡ Los eventos se actualizan automáticamente cada 3 segundos</p>
+        </div>
+    </div>
+    
+    <script>
+        const BACKEND_URL = 'http://' + window.location.hostname + ':3000';
+        const API_PREFIX = '/api';
+        let refreshInterval = null;
+        let previousEvents = new Set();
+        
+        async function checkBackend() {
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/health`);
+                if (response.ok) {
+                    const statusDiv = document.getElementById('backendStatus');
+                    statusDiv.innerHTML = '🟢 Backend Conectado';
+                    statusDiv.className = 'status-badge online';
+                    return true;
+                } else {
+                    throw new Error('No responde');
+                }
+            } catch (error) {
+                const statusDiv = document.getElementById('backendStatus');
+                statusDiv.innerHTML = '🔴 Backend Desconectado';
+                statusDiv.className = 'status-badge offline';
+                return false;
+            }
         }
-
-        let html = `<table>
-            <thead><tr>
-                <th>ID</th>
-                <th>Robot</th>
-                <th>Tipo</th>
-                <th>Evento</th>
-                <th>Nivel</th>
-                <th>Datos</th>
-                <th>Timestamp</th>
-            </tr></thead><tbody>`;
-
-        for (const e of data) {
-            const nivel = e.nivel || 'info';
-            const datos = e.datos ? JSON.stringify(e.datos) : '—';
-            html += `<tr>
-                <td style="font-size:0.8rem;color:#64748b">${e._id?.slice(-6) || '—'}</td>
-                <td>${e.robot_id || '—'}</td>
-                <td>${e.tipo || '—'}</td>
-                <td>${e.evento || '—'}</td>
-                <td><span class="badge ${nivel}">${nivel}</span></td>
-                <td style="font-size:0.8rem;color:#64748b">${datos}</td>
-                <td>${e.timestamp || '—'}</td>
-            </tr>`;
+        
+        async function loadStats() {
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/stats`);
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalEventos').innerText = stats.total_eventos || 0;
+                    document.getElementById('movimientos').innerText = stats.movimientos || 0;
+                    document.getElementById('errores').innerText = stats.errores || 0;
+                    document.getElementById('sensores').innerText = stats.sensores || 0;
+                    document.getElementById('temperatura').innerText = stats.temperatura || 0;
+                    document.getElementById('energia').innerText = stats.energia || 0;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
         }
-
-        html += '</tbody></table>';
-        el.innerHTML = html;
-    } catch (e) {
-        el.innerHTML = `<div class="error">Error al conectar con el backend: ${e.message}</div>`;
-        cont.textContent = '';
-    }
-}
-
-cargar();
-</script>
+        
+        async function loadEvents() {
+            const filter = document.getElementById('filterType').value;
+            const limit = document.getElementById('limitEvents').value;
+            let url = `${BACKEND_URL}${API_PREFIX}/events/latest?limit=${limit}`;
+            if (filter) {
+                url = `${BACKEND_URL}${API_PREFIX}/events/type/${filter}`;
+            }
+            
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const events = await response.json();
+                    displayEvents(events);
+                } else {
+                    document.getElementById('eventsContainer').innerHTML = '<div class="loading">❌ Error al cargar eventos</div>';
+                }
+            } catch (error) {
+                document.getElementById('eventsContainer').innerHTML = '<div class="loading">❌ Error de conexión</div>';
+            }
+        }
+        
+        function displayEvents(events) {
+            if (!events || events.length === 0) {
+                document.getElementById('eventsContainer').innerHTML = '<div class="loading">📭 No hay eventos. Presiona "Enviar Evento Test"</div>';
+                return;
+            }
+            
+            const currentEventIds = new Set(events.map(e => e._id));
+            const newEvents = [...currentEventIds].filter(id => !previousEvents.has(id));
+            
+            let html = '<table class="events-table"><thead><tr><th>📅 Fecha/Hora</th><th>🤖 Robot</th><th>🏷️ Tipo</th><th>⚡ Evento</th><th>📝 Nivel</th><th>📊 Datos</th></tr></thead><tbody>';
+            
+            const sortedEvents = [...events].reverse();
+            for (const event of sortedEvents) {
+                const fecha = event.fecha || event.timestamp || new Date().toISOString();
+                const tipo = event.tipo || 'general';
+                const nivel = event.nivel || 'info';
+                const isNew = newEvents.includes(event._id);
+                
+                let badgeClass = 'badge';
+                if (tipo === 'movimiento') badgeClass += ' badge-movimiento';
+                else if (tipo === 'sensor') badgeClass += ' badge-sensor';
+                else if (tipo === 'error') badgeClass += ' badge-error';
+                else if (tipo === 'temperatura') badgeClass += ' badge-temperatura';
+                else if (tipo === 'energia') badgeClass += ' badge-energia';
+                
+                let detalles = '-';
+                if (event.datos) {
+                    if (typeof event.datos === 'object') {
+                        detalles = JSON.stringify(event.datos);
+                        if (detalles.length > 60) detalles = detalles.substring(0, 60) + '...';
+                    } else {
+                        detalles = event.datos;
+                    }
+                }
+                
+                const rowClass = isNew ? 'new-event' : '';
+                html += `<tr class="${rowClass}">
+                    <td><small>${new Date(fecha).toLocaleString()}</small></td>
+                    <td><strong>${event.robot_id || 'N/A'}</strong></td>
+                    <td><span class="${badgeClass}">${tipo}</span></td>
+                    <td>${event.evento || '-'}</td>
+                    <td>${nivel}</td>
+                    <td><small title='${JSON.stringify(event.datos || {})}'>${detalles}</small></td>
+                </tr>`;
+            }
+            
+            html += '</tbody></table><div style="margin-top:15px;text-align:center;font-size:12px;color:#666;">📊 Mostrando ' + sortedEvents.length + ' eventos | 🔄 Auto-refresh cada 3 segundos</div>';
+            document.getElementById('eventsContainer').innerHTML = html;
+            document.getElementById('lastUpdate').innerHTML = ` | ${new Date().toLocaleTimeString()}`;
+            previousEvents = currentEventIds;
+        }
+        
+        async function sendTestEvent() {
+            const testEvent = {
+                robot_id: "dashboard_test",
+                tipo: "prueba",
+                evento: "test_tiempo_real",
+                nivel: "info",
+                datos: { timestamp: new Date().toISOString(), origen: "web_dashboard" }
+            };
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}${API_PREFIX}/event`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testEvent)
+                });
+                if (response.status === 201) {
+                    alert('✅ Evento de prueba enviado');
+                    refreshAll();
+                } else {
+                    alert('❌ Error al enviar');
+                }
+            } catch (error) {
+                alert('❌ Error de conexión');
+            }
+        }
+        
+        function filterEvents() { loadEvents(); }
+        function forceRefresh() { refreshAll(); }
+        async function refreshAll() { await checkBackend(); await loadStats(); await loadEvents(); }
+        
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(refreshAll, 3000);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            startAutoRefresh();
+            refreshAll();
+        });
+    </script>
 </body>
 </html>
