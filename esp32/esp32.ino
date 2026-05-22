@@ -1,9 +1,9 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char* ssid = "WIFI";
-const char* password = "PASSWORD";
-const char* server = "http://IP_DEL_BACKEND:3000";
+const char* ssid = "CLARO_2.4GHz_CFB0DE";
+const char* password = "p%RdwGCEhZX9e9P";
+const char* server = "http://163.192.133.68:3000";
 
 unsigned long lastSend = 0;
 
@@ -18,16 +18,6 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("\nWiFi conectado");
-}
-  Serial.println("\nWiFi conectado");
-
-  configTime(gmtOffset, daylightOffset, ntpServer);
-  Serial.print("Sincronizando NTP");
-  while (time(nullptr) < 100000) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("\nHora sincronizada");
 }
 
 String getTimestamp() {
@@ -129,3 +119,4 @@ void loop() {
 
   sendEvent(body);
 }
+
