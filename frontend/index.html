@@ -259,7 +259,7 @@
             const currentIds = new Set(events.map(e => e._id));
             const newIds = [...currentIds].filter(id => !previousEvents.has(id));
             let html = '<table class="events-table"><thead><tr><th>📅 Fecha/Hora</th><th>🤖 Robot</th><th>🏷️ Tipo</th><th>⚡ Evento</th><th>📝 Nivel</th><th>📊 Datos</th></tr></thead><tbody>';
-            for (const event of [...events].reverse()) {
+            for (const event of events) {
                 const badge = 'badge badge-' + (event.tipo === 'otro' ? 'prueba' : event.tipo || 'otro');
                 const datos = event.datos ? JSON.stringify(event.datos) : '-';
                 html += `<tr class="${newIds.includes(event._id) ? 'new-event' : ''}">
