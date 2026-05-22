@@ -5,7 +5,6 @@ import socket
 import threading
 import requests
 from datetime import datetime, timezone, timedelta
-from zoneinfo import ZoneInfo
 from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -59,7 +58,7 @@ def _add_check(servicio, status, response_time_ms, error=None):
         "status": status,
         "response_time_ms": response_time_ms,
         "error": error,
-        "fecha": datetime.now(ZoneInfo("America/Guatemala")).isoformat(),
+        "fecha": datetime.now(timezone.utc).isoformat(),
     }
     with _lock:
         _data.setdefault(servicio, [])
