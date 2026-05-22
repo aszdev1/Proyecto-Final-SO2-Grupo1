@@ -2,12 +2,11 @@ import os
 from fastapi import FastAPI
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from fastapi.middleware.cors import CORSMiddleware
 
 from models.modelo_evento import Evento_arduino_movimiento as Evento_movimiento
-
-#import para busqueda por ID
 from bson import ObjectId
 
 
@@ -61,7 +60,7 @@ def obtener_eventos_recientes(limit : int = 5):
 
     lista_eventos = []
 
-    for eventos in db["eventos"].find().sort("timestamp", -1).limit(limit):
+    for eventos in db["eventos"].find().sort("_id", -1).limit(limit):
 
         eventos["_id"] = str(eventos["_id"])
 
@@ -115,8 +114,7 @@ def obtener_evento(id: str):
 
 def registro_evento(evento_arduino: Evento_movimiento):
 
-    #formato de hora
-    hora = datetime.now()
+    hora = datetime.now(ZoneInfo("America/Guatemala"))
     formato = hora.strftime("%d/%m/%Y %I:%M:%S %p")
 
     nuevo_evento = {

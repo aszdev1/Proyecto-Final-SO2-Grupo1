@@ -1,14 +1,9 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <time.h>
 
-const char* ssid = "WIFI_SSI";
+const char* ssid = "WIFI";
 const char* password = "PASSWORD";
 const char* server = "http://IP_DEL_BACKEND:3000";
-
-const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset = -21600;
-const int   daylightOffset = 3600;
 
 unsigned long lastSend = 0;
 
@@ -22,6 +17,8 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
+  Serial.println("\nWiFi conectado");
+}
   Serial.println("\nWiFi conectado");
 
   configTime(gmtOffset, daylightOffset, ntpServer);
@@ -66,8 +63,7 @@ String j(const char* tipo, const char* evento,
   return String("{\"robot_id\":\"robot_01\",\"tipo\":\"") + tipo
        + "\",\"evento\":\"" + evento
        + "\",\"nivel\":\"" + nivel
-       + "\",\"datos\":" + datos
-       + ",\"timestamp\":\"" + getTimestamp() + "\"}";
+       + "\",\"datos\":" + datos + "}";
 }
 
 void loop() {

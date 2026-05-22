@@ -6,6 +6,4 @@ class Evento_arduino_movimiento(BaseModel):
     evento: str
     nivel: str
     datos : dict
-    timestamp: str
-
-
+    timestamp: str | None = None
