@@ -101,7 +101,9 @@ async function load() {
 
       let lastTime = "—";
       if (s.last_check) {
-        lastTime = new Date(s.last_check + "Z").toLocaleTimeString();
+        let d = s.last_check.replace(" ", "T");
+        if (!/Z$|[+-]\d{2}:\d{2}$/.test(d)) d += "Z";
+        lastTime = new Date(d).toLocaleTimeString();
       }
 
       let errorHtml = "";
@@ -115,7 +117,9 @@ async function load() {
         const histRes = await fetch(`/api/monitor/history?service=${name}&limit=20`);
         const hist = await histRes.json();
         timelineDots = hist.slice().reverse().map(h =>
-          `<span class="tl-dot ${h.status}" title="${h.status} · ${new Date(h.fecha + "Z").toLocaleTimeString()}"></span>`
+          let td = (h.fecha||"").replace(" ","T");
+          if (!/Z$|[+-]\d{2}:\d{2}$/.test(td)) td += "Z";
+          `<span class="tl-dot ${h.status}" title="${h.status} · ${new Date(td).toLocaleTimeString()}"></span>`
         ).join("");
       } catch(e) {}
 
