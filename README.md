@@ -148,7 +148,7 @@ Content-Type: application/json
 ## Endpoint
 
 ```http
-GET /api/health
+PUERTO:3000 GET /api/v1/health
 ```
 
 ---
