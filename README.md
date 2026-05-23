@@ -356,7 +356,7 @@ Permite registrar eventos enviados por el ESP32 o robot.
 ## Endpoint
 
 ```http
-GET /api/events
+GET /api/v1/eventos
 ```
 
 ---
