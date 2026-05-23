@@ -228,7 +228,7 @@ No requiere body.
 ## Endpoint
 
 ```http
-POST /api/event
+POST /api/v1/eventos
 ```
 
 ---
