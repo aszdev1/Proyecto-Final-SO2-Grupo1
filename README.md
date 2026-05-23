@@ -489,8 +489,7 @@ MongoDB
    |
    v
 Frontend consulta:
-GET /api/events
-GET /api/stats
+GET /api/v1/eventos
 ```
 
 ---
@@ -535,9 +534,8 @@ Consumir:
 
 | Endpoint |
 |---|
-| /api/events |
-| /api/stats |
-| /api/health |
+| /api/v1/eventos |
+| /api/v1/health |
 
 ---
 
@@ -546,7 +544,7 @@ Consumir:
 Usar únicamente:
 
 ```http
-POST /api/event
+POST /api/v1/eventos
 ```
 
 ---
