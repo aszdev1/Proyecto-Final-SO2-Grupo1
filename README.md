@@ -398,14 +398,14 @@ No requiere body.
 ## Endpoint
 
 ```http
-GET /api/events/latest
+GET /api/v1/eventos/recientes?limit=5
 ```
 
 ---
 
 # Descripción
 
-Retorna los últimos eventos registrados.
+Retorna los 5 últimos eventos registrados.
 
 ---
 
