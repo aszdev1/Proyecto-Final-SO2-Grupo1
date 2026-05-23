@@ -168,6 +168,7 @@ No requiere body.
 ## Response 200
 
 ```json
+
 {
   "ok": true,
   "service": "backend",
@@ -435,6 +436,140 @@ GET /api/v1/eventos/recientes?limit=5
     "evento": "obstaculo_detectado"
   }
 ]
+```
+
+---
+
+# 6. Filtrar Eventos por Tipo
+
+## Endpoint
+
+```http
+GET /api/events/type/{tipo}
+```
+
+---
+
+# Ejemplo
+
+```http
+GET /api/events/type/error
+```
+
+---
+
+# Tipos válidos
+
+| Tipo |
+|---|
+| movimiento |
+| sensor |
+| temperatura |
+| energia |
+| error |
+| sistema |
+
+---
+
+# Response 200
+
+```json
+[
+  {
+    "_id": "6829f94db6e4a0d90e2c1201",
+    "tipo": "error",
+    "evento": "motor_fail",
+    "nivel": "critical"
+  }
+]
+```
+
+---
+
+# 7. Obtener Estadísticas
+
+## Endpoint
+
+```http
+GET /api/stats
+```
+
+---
+
+# Descripción
+
+Retorna estadísticas generales del sistema.
+
+---
+
+# Response 200
+
+```json
+{
+  "total_eventos": 150,
+  "movimientos": 80,
+  "errores": 5,
+  "sensores": 30,
+  "temperatura": 20,
+  "energia": 15
+}
+```
+
+---
+
+# 8. Obtener Estado Robot
+
+## Endpoint
+
+```http
+GET /api/robot/status
+```
+
+---
+
+# Descripción
+
+Retorna el último estado conocido del robot.
+
+---
+
+# Response 200
+
+```json
+{
+  "robot_id": "robot_01",
+  "estado": "activo",
+  "ultimo_evento": "movimiento",
+  "ultima_conexion": "2026-05-18T10:00:00",
+  "bateria": 76
+}
+```
+
+---
+
+# 9. Eliminar Eventos
+
+## Endpoint
+
+```http
+DELETE /api/events
+```
+
+---
+
+# Descripción
+
+Elimina todos los eventos registrados.
+
+---
+
+# Response 200
+
+```json
+{
+  "ok": true,
+  "message": "Eventos eliminados" 
+}
 ```
 
 ---
