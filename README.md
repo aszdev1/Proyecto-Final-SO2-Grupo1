@@ -1,5 +1,16 @@
 # Proyecto-Final-SO2-Grupo1
 
+## Despliegue
+
+| Servicio | URL |
+|----------|-----|
+| Frontend | http://163.192.133.68 |
+| Backend | http://163.192.133.68:3000 |
+| Monitor de Servicios | http://163.192.133.68:4000 |
+| Documentación API | http://163.192.133.68:3000/docs |
+
+---
+
 ## Ambiente de desarrollo
 
 ### Version backend python 
