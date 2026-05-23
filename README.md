@@ -420,7 +420,7 @@ Retorna los 5 últimos eventos registrados.
 # Ejemplo
 
 ```http
-GET /api/events/latest?limit=5
+GET /api/v1/eventos/latest?limit=5
 ```
 
 ---
