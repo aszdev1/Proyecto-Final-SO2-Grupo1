@@ -182,7 +182,7 @@ No requiere body.
 ## Endpoint
 
 ```http
-GET /api/mongo-status
+GET /api/v1/status
 ```
 
 ---
